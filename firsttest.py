@@ -130,7 +130,14 @@ def main():
         print("Không thể tải ảnh Background.png")
 
     dot_field = DotField(WIDTH, HEIGHT)
+    
+    
+    # ... (Phần khởi tạo pygame, font, background, dot_field giữ nguyên như cũ) ...
 
+    # KHẮC PHỤC LỖI: Khởi tạo tọa độ button_rect trước vòng lặp while 
+    # để event loop có thể kiểm tra thao tác click
+    button_rect = pygame.Rect(80, 400, 160, 45) 
+    
     running = True
     while running:
         mx, my = pygame.mouse.get_pos()
@@ -139,43 +146,55 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             
-            # Xử lý click button
+            # Xử lý click button[cite: 1]
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                # Kiểm tra xem chuột có nằm trong vùng của Button không (tọa độ giả định ở phần render)
+                # Kiểm tra xem chuột có nằm trong vùng của Button không[cite: 1]
                 if button_rect.collidepoint(mx, my):
-                    print("Nút Start Now đã được nhấn!")
+                    print("Nút Start Now đã được nhấn!")[cite: 1]
 
-        dot_field.mouse_x, dot_field.mouse_y = mx, my
-        dot_field.update_mouse_speed(mx, my)
-
-        # 1. VẼ NỀN (Lớp dưới cùng)
-        if background_image:
-            screen.blit(background_image, (0, 0))
-        else:
-            screen.fill(BG_COLOR)
-
-        # 2. VẼ DOTFIELD (Lớp ở giữa)
-        dot_field.draw(screen)
+        # ... (Phần update dot_field, vẽ Nền và vẽ DotField giữ nguyên) ...
 
         # 3. VẼ GIAO DIỆN CHỮ VÀ NÚT (Lớp trên cùng)
-        # Margin trái
-        margin_x = 80
-        start_y = 120
+        margin_x = 80[cite: 1]
+        start_y = 120[cite: 1]
 
         # --- Vẽ Badge ---
-        # badge_rect = pygame.Rect(margin_x, start_y, 220, 36)
-        # pygame.draw.rect(screen, BADGE_BORDER, badge_rect, border_radius=6)
-        # pygame.draw.rect(screen, BADGE_BG, badge_rect.inflate(-2, -2), border_radius=6)
+        badge_rect = pygame.Rect(margin_x, start_y, 140, 32)
+        pygame.draw.rect(screen, BADGE_BORDER, badge_rect, border_radius=16) # Bo góc tròn trịa hơn
+        pygame.draw.rect(screen, BADGE_BG, badge_rect.inflate(-2, -2), border_radius=16)
+        draw_text(screen, "V1.0 RELEASE", font_mono, BRAND_GREEN, margin_x + 15, start_y + 8)
+
+        # --- Vẽ Title ---
+        title_y = start_y + 50
+        draw_text(screen, "Interactive", font_title, TEXT_WHITE, margin_x, title_y)
+        draw_text(screen, "Dot Field", font_title, TEXT_WHITE, margin_x, title_y + 60)
+
+        # --- Vẽ Subtitle ---
+        sub_y = title_y + 150
+        draw_text(screen, "Di chuyển chuột để thấy", font_subtitle, TEXT_GRAY, margin_x, sub_y)
+        draw_text(screen, "sự thay đổi của không gian.", font_subtitle, TEXT_GRAY, margin_x, sub_y + 25)
+
+        # --- Vẽ Button ---
+        # Cập nhật lại vị trí nút cho đồng bộ
+        button_rect.topleft = (margin_x, sub_y + 80)
         
-        
+        # Thêm hiệu ứng Hover: Đổi màu khi đưa chuột vào
+        if button_rect.collidepoint(mx, my):
+            pygame.draw.rect(screen, (30, 255, 175), button_rect, border_radius=8) # Xanh sáng hơn
+        else:
+            pygame.draw.rect(screen, BRAND_GREEN, button_rect, border_radius=8)
+            
+        # Chữ bên trong nút
+        draw_text(screen, "Start Now", font_subtitle, BG_COLOR, margin_x + 35, sub_y + 90)
 
+        # Cập nhật màn hình[cite: 1]
+        pygame.display.flip()[cite: 1]
+        clock.tick(FPS)[cite: 1]
 
-        # Cập nhật màn hình
-        pygame.display.flip()
-        clock.tick(FPS)
+    pygame.quit()[cite: 1]
+    sys.exit()[cite: 1]
 
-    pygame.quit()
-    sys.exit()
+    
 
 if __name__ == "__main__":
     main()
